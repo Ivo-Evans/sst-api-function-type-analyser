@@ -1,0 +1,1 @@
+{"id":"test-normal-my-stack-Api-Lambda_GET_-","handler":"src/lambda.handler","runtime":"nodejs14.x","srcPath":".","root":"/home/ivo-evans/Tortoise/api-docs/src/classes/RouteFileMapper/test-projects/normal"}
