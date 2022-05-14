@@ -4,6 +4,7 @@
   "description": "Infer types from an SST project",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "test": "jest ./"
   },
   "author": "Ivo Evans",
