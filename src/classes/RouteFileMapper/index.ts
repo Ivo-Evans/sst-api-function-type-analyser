@@ -75,12 +75,13 @@ export default class RouteFileMapper {
         const lambdaExportSpec = this.splitRouteAndMethod(route.route)
         if (!exportFilePath) {
           this.throwMissingFunction(lambdaExportSpec)
-          // integrity is only checked within the constructs file, not between construsts.json and function.json
+          // integrity is only checked within the constructs file, not between construsts.json and function.json - a problem
         }
 
         //it would probably be cleaner to do this beforehand and change the shape of the earlier hashmaps
+        const dotFollowedByJSBinding = /\.(?=[a-zA-Z$_][a-zA-Z$_0-9]*$)/
         const [filepath, exportedToken] = exportFilePath.split(
-          /\.(?=[a-zA-Z$_][a-zA-Z$_0-9]*$)/
+          dotFollowedByJSBinding
         )
 
         const fileExportSpec = {
