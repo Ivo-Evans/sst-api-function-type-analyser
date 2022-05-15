@@ -3,7 +3,7 @@ import RouteFileMapper from '.'
 import { AppExportSpec } from '../../types'
 
 describe('RouteFileMapper', () => {
-  it('Gets mapping when passed a valid project', () => {
+  it('Gets correct mapping when a file exports one route with a named exports', () => {
     const pathToSSTProject = path.join(__dirname, 'test-data', 'normal')
     const files = {
       [pathToSSTProject + '/.sst/constructs.json']: `[
@@ -54,6 +54,84 @@ describe('RouteFileMapper', () => {
           handler: {
             method: 'GET',
             route: '/',
+          },
+        },
+      },
+    })
+  })
+
+  it('Gets correct mapping when a file exports multiple lambdas for different routes', () => {
+    const pathToSSTProject = path.join(__dirname, 'test-data', 'normal')
+    const files = {
+      [pathToSSTProject +
+      '/.sst/constructs.json']: `[{"id":"api","addr":"c85699106b8ea9cf9522e7bb0b278f906872e2d8df","stack":"test-my-sst-app-MyStack","type":"Api","data":{"graphql":false,"url":"https://\${Token[TOKEN.200]}.execute-api.us-east-1.\${Token[AWS.URLSuffix.4]}/","httpApiId":"\${Token[TOKEN.200]}","routes":[{"route":"POST /users","fn":{"node":"c8d995cc7cedebfe35506bf4497d03bd158bcbec08","stack":"test-my-sst-app-MyStack"}},{"route":"GET /users/{id}","fn":{"node":"c8289eabd2f6b117c41265f71f33fe01708bf809a2","stack":"test-my-sst-app-MyStack"}},{"route":"PUT /users/{id}","fn":{"node":"c8cb0ac5c919bd6f04ff6238435897cb5ab73da5d8","stack":"test-my-sst-app-MyStack"}}]}},{"id":"Lambda_POST_--users","addr":"c8d995cc7cedebfe35506bf4497d03bd158bcbec08","stack":"test-my-sst-app-MyStack","type":"Function","data":{"localId":"test-my-sst-app-MyStack-api-Lambda_POST_-users","arn":"\${Token[TOKEN.229]}"}},{"id":"Lambda_GET_--users--{id}","addr":"c8289eabd2f6b117c41265f71f33fe01708bf809a2","stack":"test-my-sst-app-MyStack","type":"Function","data":{"localId":"test-my-sst-app-MyStack-api-Lambda_GET_-users-{id}","arn":"\${Token[TOKEN.261]}"}},{"id":"Lambda_PUT_--users--{id}","addr":"c8cb0ac5c919bd6f04ff6238435897cb5ab73da5d8","stack":"test-my-sst-app-MyStack","type":"Function","data":{"localId":"test-my-sst-app-MyStack-api-Lambda_PUT_-users-{id}","arn":"\${Token[TOKEN.293]}"}}]
+      `,
+      [pathToSSTProject +
+      '/.sst/functions.jsonl']: `{"id":"test-my-sst-app-MyStack-api-Lambda_POST_-users","handler":"functions/users.postUser","runtime":"nodejs16.x","srcPath":"backend","bundle":{"format":"esm"},"root":"/home/ivo-evans/Tortoise/fake-sst/my-sst-app"}
+      {"id":"test-my-sst-app-MyStack-api-Lambda_GET_-users-{id}","handler":"functions/users.getUser","runtime":"nodejs16.x","srcPath":"backend","bundle":{"format":"esm"},"root":"/home/ivo-evans/Tortoise/fake-sst/my-sst-app"}
+      {"id":"test-my-sst-app-MyStack-api-Lambda_PUT_-users-{id}","handler":"functions/users.putUser","runtime":"nodejs16.x","srcPath":"backend","bundle":{"format":"esm"},"root":"/home/ivo-evans/Tortoise/fake-sst/my-sst-app"}
+      `,
+    }
+    const readFile = (filepath) => files[filepath]
+    const mapping: AppExportSpec = new RouteFileMapper(
+      pathToSSTProject,
+      readFile
+    ).getMapping()
+
+    expect(mapping).toMatchObject({
+      api: {
+        [path.join(pathToSSTProject, 'backend/functions/users')]: {
+          postUser: {
+            method: 'POST',
+            route: '/users',
+          },
+          getUser: {
+            method: 'GET',
+            route: '/users/{id}',
+          },
+          putUser: {
+            method: 'PUT',
+            route: '/users/{id}',
+          },
+        },
+      },
+    })
+  })
+
+  it('Gets correct mapping when multiple files default export lambdas for different routes', () => {
+    const pathToSSTProject = path.join(__dirname, 'test-data', 'normal')
+    const files = {
+      [pathToSSTProject +
+      '/.sst/constructs.json']: `[{"id":"api","addr":"c85699106b8ea9cf9522e7bb0b278f906872e2d8df","stack":"test-my-sst-app-MyStack","type":"Api","data":{"graphql":false,"url":"https://\${Token[TOKEN.206]}.execute-api.us-east-1.\${Token[AWS.URLSuffix.10]}/","httpApiId":"\${Token[TOKEN.206]}","routes":[{"route":"POST /users","fn":{"node":"c8d995cc7cedebfe35506bf4497d03bd158bcbec08","stack":"test-my-sst-app-MyStack"}},{"route":"GET /users/{id}","fn":{"node":"c8289eabd2f6b117c41265f71f33fe01708bf809a2","stack":"test-my-sst-app-MyStack"}},{"route":"PUT /users/{id}","fn":{"node":"c8cb0ac5c919bd6f04ff6238435897cb5ab73da5d8","stack":"test-my-sst-app-MyStack"}}]}},{"id":"Lambda_POST_--users","addr":"c8d995cc7cedebfe35506bf4497d03bd158bcbec08","stack":"test-my-sst-app-MyStack","type":"Function","data":{"localId":"test-my-sst-app-MyStack-api-Lambda_POST_-users","arn":"\${Token[TOKEN.235]}"}},{"id":"Lambda_GET_--users--{id}","addr":"c8289eabd2f6b117c41265f71f33fe01708bf809a2","stack":"test-my-sst-app-MyStack","type":"Function","data":{"localId":"test-my-sst-app-MyStack-api-Lambda_GET_-users-{id}","arn":"\${Token[TOKEN.267]}"}},{"id":"Lambda_PUT_--users--{id}","addr":"c8cb0ac5c919bd6f04ff6238435897cb5ab73da5d8","stack":"test-my-sst-app-MyStack","type":"Function","data":{"localId":"test-my-sst-app-MyStack-api-Lambda_PUT_-users-{id}","arn":"\${Token[TOKEN.299]}"}}]`,
+      [pathToSSTProject +
+      '/.sst/functions.jsonl']: `{"id":"test-my-sst-app-MyStack-api-Lambda_POST_-users","handler":"functions/users/post.default","runtime":"nodejs16.x","srcPath":"backend","bundle":{"format":"esm"},"root":"/home/ivo-evans/Tortoise/fake-sst/my-sst-app"}
+      {"id":"test-my-sst-app-MyStack-api-Lambda_GET_-users-{id}","handler":"functions/users/get.default","runtime":"nodejs16.x","srcPath":"backend","bundle":{"format":"esm"},"root":"/home/ivo-evans/Tortoise/fake-sst/my-sst-app"}
+      {"id":"test-my-sst-app-MyStack-api-Lambda_PUT_-users-{id}","handler":"functions/users/put.default","runtime":"nodejs16.x","srcPath":"backend","bundle":{"format":"esm"},"root":"/home/ivo-evans/Tortoise/fake-sst/my-sst-app"}`,
+    }
+    const readFile = (filepath) => files[filepath]
+    const mapping: AppExportSpec = new RouteFileMapper(
+      pathToSSTProject,
+      readFile
+    ).getMapping()
+
+    expect(mapping).toMatchObject({
+      api: {
+        [path.join(pathToSSTProject, 'backend/functions/users/get')]: {
+          default: {
+            method: 'GET',
+            route: '/users/{id}',
+          },
+        },
+        [path.join(pathToSSTProject, 'backend/functions/users/post')]: {
+          default: {
+            method: 'POST',
+            route: '/users',
+          },
+        },
+        [path.join(pathToSSTProject, 'backend/functions/users/put')]: {
+          default: {
+            method: 'PUT',
+            route: '/users/{id}',
           },
         },
       },
