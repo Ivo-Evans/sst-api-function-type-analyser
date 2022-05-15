@@ -1,6 +1,11 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { AppExportSpec, LambdaExportSpec, Method } from '../../types'
+import {
+  ApiExportSpec,
+  AppExportSpec,
+  LambdaExportSpec,
+  Method,
+} from '../../types'
 
 export default class RouteFileMapper {
   private pathToSSTProject: string
@@ -57,22 +62,37 @@ export default class RouteFileMapper {
     return { method, route }
   }
 
-  private getApiMapping(apiConstruct) {
+  private getApiMapping(apiConstruct): ApiExportSpec {
     return apiConstruct.data.routes.reduce(
       (routesCollectedByFilepath, route) => {
         const { node } = route.fn
-        const filepath = this.functionFileByAddress[node]
+        const exportFilePath = this.functionFileByAddress[node]
         const lambdaExportSpec = this.splitRouteAndMethod(route.route)
-        if (!filepath) {
+        if (!exportFilePath) {
           this.throwMissingFunction(lambdaExportSpec)
+          // integrity is only checked within the constructs file, not between construsts.json and function.json
         }
-        return { ...routesCollectedByFilepath, [filepath]: lambdaExportSpec }
+
+        //it would probably be cleaner to do this beforehand and change the shape of the earlier hashmaps
+        const [filepath, exportedToken] = exportFilePath.split(
+          /\.(?=[a-zA-Z$_][a-zA-Z$_0-9]*$)/
+        )
+
+        const fileExportSpec = {
+          ...(routesCollectedByFilepath[filepath] || {}),
+          [exportedToken]: lambdaExportSpec,
+        }
+
+        return {
+          ...routesCollectedByFilepath,
+          [filepath]: fileExportSpec,
+        }
       },
       {}
     )
   }
 
-  private parseConstructsFile() {
+  private loadConstructsFileIntoMemory() {
     this.constructsFileContents = JSON.parse(
       fs.readFileSync(
         path.resolve(this.pathToSSTProject, '.sst', 'constructs.json'),
@@ -81,7 +101,7 @@ export default class RouteFileMapper {
     )
   }
 
-  private parseFunctionsFile() {
+  private loadFunctionsFileIntoMemory() {
     const fileString = fs.readFileSync(
       path.resolve(this.pathToSSTProject, '.sst', 'functions.jsonl'),
       'utf-8'
@@ -100,7 +120,7 @@ export default class RouteFileMapper {
   }
 
   private mapApiIdsToApiSpecs() {
-    this.appExportSpec = this.constructsFileContents.reduce(
+    this.appExportSpec = this.constructsFileContents.reduce<AppExportSpec>(
       (collectedApis, construct) => {
         if (construct.type !== 'Api') {
           return collectedApis
@@ -110,17 +130,16 @@ export default class RouteFileMapper {
           [construct.id]: this.getApiMapping(construct),
         }
       },
-      []
+      {}
     )
   }
 
   public getMapping(): AppExportSpec {
-    this.parseConstructsFile()
-    this.parseFunctionsFile()
+    this.loadConstructsFileIntoMemory()
+    this.loadFunctionsFileIntoMemory()
 
     this.mapFunctionLocalIdToFilepath()
     this.mapFunctionAddressToFilepath()
-
     this.mapApiIdsToApiSpecs()
 
     return this.appExportSpec

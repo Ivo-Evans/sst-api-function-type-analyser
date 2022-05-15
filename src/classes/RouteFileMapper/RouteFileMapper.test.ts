@@ -11,9 +11,11 @@ describe('RouteFileMapper', () => {
 
     expect(mapping).toMatchObject({
       Api: {
-        [path.join(pathToSSTProject, 'src/lambda.handler')]: {
-          method: 'GET',
-          route: '/',
+        [path.join(pathToSSTProject, 'src/lambda')]: {
+          handler: {
+            method: 'GET',
+            route: '/',
+          },
         },
       },
     })
