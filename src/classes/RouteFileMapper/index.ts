@@ -9,14 +9,19 @@ import {
 
 export default class RouteFileMapper {
   private pathToSSTProject: string
+  private readFile: (filepath: string) => string
   private constructsFileContents: any[]
   private functionsFileContents: any[]
   private functionFileByLocalId: Record<string, string>
   private functionFileByAddress: Record<string, string>
   private appExportSpec: AppExportSpec
 
-  constructor(pathToSSTProject: string) {
+  constructor(
+    pathToSSTProject: string,
+    readFile: (filepath: string) => string
+  ) {
     this.pathToSSTProject = pathToSSTProject
+    this.readFile = readFile
   }
 
   private mapFunctionLocalIdToFilepath() {
@@ -94,17 +99,15 @@ export default class RouteFileMapper {
 
   private loadConstructsFileIntoMemory() {
     this.constructsFileContents = JSON.parse(
-      fs.readFileSync(
-        path.resolve(this.pathToSSTProject, '.sst', 'constructs.json'),
-        'utf-8'
+      this.readFile(
+        path.resolve(this.pathToSSTProject, '.sst', 'constructs.json')
       )
     )
   }
 
   private loadFunctionsFileIntoMemory() {
-    const fileString = fs.readFileSync(
-      path.resolve(this.pathToSSTProject, '.sst', 'functions.jsonl'),
-      'utf-8'
+    const fileString = this.readFile(
+      path.resolve(this.pathToSSTProject, '.sst', 'functions.jsonl')
     )
 
     this.functionsFileContents = fileString
