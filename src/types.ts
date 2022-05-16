@@ -1,4 +1,4 @@
-export type Method =
+type CaseInsensitiveMethod =
   | 'GET'
   | 'POST'
   | 'PUT'
@@ -6,6 +6,10 @@ export type Method =
   | 'DELETE'
   | 'HEAD'
   | 'OPTIONS' /// support other methods
+
+export type Method =
+  | Uppercase<CaseInsensitiveMethod>
+  | Lowercase<CaseInsensitiveMethod>
 
 export interface LambdaExportSpec {
   method: Method
