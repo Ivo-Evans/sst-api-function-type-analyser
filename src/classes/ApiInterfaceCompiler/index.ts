@@ -5,7 +5,7 @@ export default class RouteInterfaceWriter {
   private apiExportSpec: ApiExportSpec
   private apiName: string
   private outDir: string
-  private writeFile: (filepath: string, content: string) => void
+  private handleOutput: (filepath: string, content: string) => void
   private usedNames: Record<string, number>
   private importStatements: string[]
   private fileString
@@ -17,12 +17,12 @@ export default class RouteInterfaceWriter {
     apiName: string,
     apiExportSpec: ApiExportSpec,
     outDir: string,
-    writeFile: (filepath: string, content: string) => void
+    handleOutput: (filepath: string, content: string) => void
   ) {
     this.apiName = apiName
     this.apiExportSpec = apiExportSpec
     this.outDir = outDir
-    this.writeFile = writeFile
+    this.handleOutput = handleOutput
     this.usedNames = {}
     this.importStatements = []
     this.interfaceRepresentation = {}
@@ -108,7 +108,7 @@ export default class RouteInterfaceWriter {
   }
 
   private writeToFile() {
-    this.writeFile(
+    this.handleOutput(
       path.join(this.outDir, `${this.apiName}.d.ts`),
       this.fileString
     )
