@@ -25,7 +25,7 @@ export default class ImportBlock {
 
   public toString() {
     const importStatements: string[] = []
-    for (let [filepath, exports] of this.imports) {
+    for (const [filepath, exports] of this.imports) {
       const importAsExpression = exports
         .map(({ importName, exportName }) =>
           exportName === importName

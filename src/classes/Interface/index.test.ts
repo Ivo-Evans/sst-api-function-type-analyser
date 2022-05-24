@@ -27,7 +27,6 @@ describe('Interface', () => {
     const secondInterfaceInstance = new Interface()
     secondInterfaceInstance.insert('foo', 'bar')
     interfaceInstance.insert('baz', secondInterfaceInstance)
-    const res = interfaceInstance.toString()
     expect(interfaceInstance.toString()).toBe(
       [
         '{',

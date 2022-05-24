@@ -9,7 +9,7 @@ export default class Interface {
   }
 
   public insertIndexSignature(key: string, value: InterfaceEntry) {
-    this.insert(`\[index: \`${key}\`]`, value)
+    this.insert(`[index: \`${key}\`]`, value)
   }
 
   private indent(times: number) {
@@ -34,7 +34,7 @@ export default class Interface {
     )
   }
 
-  public toString(nestingLevel: number = 0) {
+  public toString(nestingLevel = 0) {
     return this.jsObjectToTsInterface(this.keyValuePairs, nestingLevel)
   }
 
