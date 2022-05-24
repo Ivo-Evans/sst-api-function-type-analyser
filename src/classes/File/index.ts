@@ -1,11 +1,9 @@
 import fs from 'fs'
 
 export default class File {
-  public readonly name: string
   public content: string
 
-  constructor(name: string) {
-    this.name = name
+  constructor(public readonly name: string) {
     this.content = this.readFromDiskIfExists(name)
   }
 

@@ -13,9 +13,7 @@ import ImportBlock from '../ImportBlock'
 import Interface from '../Interface'
 
 export default class API {
-  private readonly pathToSSTProject: string
   private readonly apiMapping: ApiExportSpec
-  private readonly file: { content: string; writeToDisk: () => void }
   private routeInterfaces: Record<string, Interface> = {}
 
   private mapFunctionLocalIdToFilepath(
@@ -101,8 +99,8 @@ export default class API {
     apiConstruct: SSTAPIConstruct,
     functionsFileContents: SSTFunctionsFileContents,
     constructsFileContents: SSTConstructsFileContents,
-    pathToSSTProject: string,
-    file: { writeToDisk: () => void; content: string }
+    private readonly pathToSSTProject: string,
+    private readonly file: { content: string; writeToDisk: () => void }
   ) {
     this.pathToSSTProject = pathToSSTProject
     const functionFileByLocalId = this.mapFunctionLocalIdToFilepath(
@@ -114,7 +112,6 @@ export default class API {
     )
 
     this.apiMapping = this.getApiMapping(apiConstruct, functionFileByAddress)
-    this.file = file
   }
 
   private sstPathToTsTemplateString(route: string) {

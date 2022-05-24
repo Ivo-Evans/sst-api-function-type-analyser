@@ -6,19 +6,11 @@ import {
 } from '../../types'
 
 export default class APIFactory {
-  private readonly constructsFileContents: SSTConstructsFileContents
-  private readonly functionsFileContents: SSTFunctionsFileContents
-  private readonly APIImplementation: APIClass
-
   constructor(
-    constructsFileContents: SSTConstructsFileContents,
-    functionsFileContents: SSTFunctionsFileContents,
-    APIImplementation: APIClass
-  ) {
-    this.constructsFileContents = constructsFileContents
-    this.functionsFileContents = functionsFileContents
-    this.APIImplementation = APIImplementation
-  }
+    private readonly constructsFileContents: SSTConstructsFileContents,
+    private readonly functionsFileContents: SSTFunctionsFileContents,
+    private readonly APIImplementation: APIClass
+  ) {}
 
   private apisInFile(): SSTAPIConstruct[] {
     return this.constructsFileContents.filter(
