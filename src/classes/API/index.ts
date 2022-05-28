@@ -11,6 +11,7 @@ import {
 import path from 'path'
 import ImportBlock from '../ImportBlock'
 import Interface from '../Interface'
+import File from '../File'
 
 export default class API {
   private readonly apiMapping: ApiExportSpec
@@ -100,7 +101,7 @@ export default class API {
     functionsFileContents: SSTFunctionsFileContents,
     constructsFileContents: SSTConstructsFileContents,
     private readonly pathToSSTProject: string,
-    private readonly file: { content: string; writeToDisk: () => void }
+    private readonly file: File
   ) {
     this.pathToSSTProject = pathToSSTProject
     const functionFileByLocalId = this.mapFunctionLocalIdToFilepath(
@@ -124,7 +125,6 @@ export default class API {
     importBlock: ImportBlock,
     routesInterface: Interface
   ) {
-    // const routeInterfaces: Record<string, Interface> = {}
     Object.entries(fileExportSpec).map(([exportName, lambdaExportSpec]) => {
       importBlock.import(filename, exportName)
       const importedAs = importBlock.getImportNameOf(filename, exportName)

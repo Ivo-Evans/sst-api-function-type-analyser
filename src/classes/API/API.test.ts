@@ -1,21 +1,21 @@
 import { SSTAPIConstruct, SSTFunctionConstruct } from '../../types'
 import API from './'
+import File from '../File'
+
+const disk: Record<string, string> = {}
+jest.mock('../File', () => {
+  return jest.fn().mockImplementation((name) => {
+    return {
+      name,
+      writeToDisk() {
+        disk[this.name] = this.content
+      },
+    }
+  })
+})
 
 describe('API', () => {
   it('Should be able to create a declaration file exporting an interface from valid SST files', () => {
-    const disk: Record<string, string> = {}
-    class MockedFile {
-      private readonly name: string
-      public content: string
-      constructor(name: string) {
-        this.name = name
-        this.content = ''
-      }
-      public writeToDisk() {
-        disk[this.name] = this.content
-      }
-    }
-
     const apiConstruct: SSTAPIConstruct = {
       id: 'api',
       addr: 'c85699106b8ea9cf9522e7bb0b278f906872e2d8df',
@@ -124,7 +124,7 @@ describe('API', () => {
         runtime: 'nodejs16.x',
         srcPath: 'backend',
         bundle: { format: 'esm' },
-        root: '/home/ivo-evans/Tortoise/fake-sst/my-sst-app',
+        root: '/home/ivo-evans/fake-sst/my-sst-app',
       },
       {
         id: 'test-my-sst-app-MyStack-api-Lambda_GET_-users-{id}',
@@ -132,7 +132,7 @@ describe('API', () => {
         runtime: 'nodejs16.x',
         srcPath: 'backend',
         bundle: { format: 'esm' },
-        root: '/home/ivo-evans/Tortoise/fake-sst/my-sst-app',
+        root: '/home/ivo-evans/fake-sst/my-sst-app',
       },
       {
         id: 'test-my-sst-app-MyStack-api-Lambda_PUT_-users-{id}',
@@ -140,12 +140,12 @@ describe('API', () => {
         runtime: 'nodejs16.x',
         srcPath: 'backend',
         bundle: { format: 'esm' },
-        root: '/home/ivo-evans/Tortoise/fake-sst/my-sst-app',
+        root: '/home/ivo-evans/fake-sst/my-sst-app',
       },
     ]
 
     const pathToSSTProject = './random/filepath/'
-    const file = new MockedFile('ApiRoutes.d.ts')
+    const file = new File('ApiRoutes.d.ts')
     const api = new API(
       apiConstruct,
       functionsFileContents,

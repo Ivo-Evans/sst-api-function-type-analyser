@@ -75,14 +75,3 @@ export type SSTConstruct = SSTAPIConstruct | SSTFunctionConstruct
 // maybe edit the class to only export these?
 
 export type SSTConstructsFileContents = SSTConstruct[]
-
-export interface APIClass {
-  new (
-    apiConstruct: SSTAPIConstruct,
-    functionsFileContents: SSTFunctionsFileContents
-  )
-}
-
-export interface FileClass {
-  new (name: string): void
-}

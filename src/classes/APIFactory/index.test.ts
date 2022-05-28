@@ -1,24 +1,24 @@
 import APIFactory from '.'
-import {
-  SSTAPIConstruct,
-  SSTConstructsFileContents,
-  SSTFunctionsFileContents,
-} from '../../types'
+import { SSTConstructsFileContents } from '../../types'
+import API from '../API'
+import File from '../File'
+jest.mock('../API', () =>
+  jest.fn().mockImplementation(() => {
+    return {}
+  })
+)
 
-class MockedAPI {
-  public apiConstruct: SSTAPIConstruct
-  public functionsFileContents: SSTFunctionsFileContents
-
-  constructor(
-    apiConstruct: SSTAPIConstruct,
-    functionsFileContents: SSTFunctionsFileContents
-  ) {
-    this.apiConstruct = apiConstruct
-    this.functionsFileContents = functionsFileContents
-  }
-}
+jest.mock('../File', () =>
+  jest.fn().mockImplementation(() => {
+    return {}
+  })
+)
 
 describe('APIFactory', () => {
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
+
   it('Instantiates one API for each field of type API in the SSTConstructsFile', () => {
     const constructsFileContents: SSTConstructsFileContents = [
       {
@@ -53,12 +53,18 @@ describe('APIFactory', () => {
       },
     ]
 
-    const apiFactory = new APIFactory(constructsFileContents, [], MockedAPI)
+    const apiFactory = new APIFactory(
+      constructsFileContents,
+      [],
+      API,
+      new File('at address'),
+      'foo'
+    )
     const apis = apiFactory.getAPIs()
     expect(apis.length).toBe(2)
   })
 
-  it('Passes the correct API construct field to the correct APIs', () => {
+  it('Passes the correct arguments to the API', () => {
     const constructsFileContents: SSTConstructsFileContents = [
       {
         type: 'Api',
@@ -82,52 +88,30 @@ describe('APIFactory', () => {
       },
     ]
 
-    const apiFactory = new APIFactory(constructsFileContents, [], MockedAPI)
-    const apis = apiFactory.getAPIs()
-    expect(apis[0].apiConstruct.id).toBe('id 1')
-    expect(apis[1].apiConstruct.id).toBe('id 2')
-  })
-
-  it('Instantiates every API with the functions file data the factory was passed', () => {
-    const constructsFileContents: SSTConstructsFileContents = [
-      {
-        type: 'Api',
-        id: 'id 1',
-        addr: 'string',
-        stack: 'string',
-        data: {
-          httpApiId: 'string',
-          routes: [],
-        },
-      },
-      {
-        type: 'Api',
-        id: 'id 2',
-        addr: 'string',
-        stack: 'string',
-        data: {
-          httpApiId: 'string',
-          routes: [],
-        },
-      },
-    ]
-
-    const localLambdaRecord = {
-      id: 'dbbxd',
-      handler: 'gddsd',
-      runtime: 'bsfbs',
-      srcPath: '.',
-      root: '..',
-    }
+    const file = new File('At address')
 
     const apiFactory = new APIFactory(
       constructsFileContents,
-      [localLambdaRecord],
-      MockedAPI
+      [],
+      API,
+      file,
+      'foo'
     )
-    const apis = apiFactory.getAPIs()
-    expect(apis.map((api) => api.functionsFileContents)).toMatchObject(
-      new Array(apis.length).fill([localLambdaRecord])
-    )
+    apiFactory.getAPIs()
+    const calls = (API as jest.Mock).mock.calls
+    expect(calls[0]).toMatchObject([
+      constructsFileContents[0],
+      [],
+      constructsFileContents,
+      'foo',
+      file,
+    ])
+    expect(calls[1]).toMatchObject([
+      constructsFileContents[1],
+      [],
+      constructsFileContents,
+      'foo',
+      file,
+    ])
   })
 })

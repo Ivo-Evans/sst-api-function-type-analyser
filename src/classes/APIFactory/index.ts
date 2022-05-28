@@ -1,15 +1,18 @@
 import {
-  APIClass,
   SSTAPIConstruct,
   SSTConstructsFileContents,
   SSTFunctionsFileContents,
 } from '../../types'
+import API from '../API'
+import File from '../File'
 
 export default class APIFactory {
   constructor(
     private readonly constructsFileContents: SSTConstructsFileContents,
     private readonly functionsFileContents: SSTFunctionsFileContents,
-    private readonly APIImplementation: APIClass
+    private readonly APIImplementation: typeof API,
+    private readonly fileImplementation: File,
+    private readonly pathToSSTProject: string
   ) {}
 
   private apisInFile(): SSTAPIConstruct[] {
@@ -21,7 +24,13 @@ export default class APIFactory {
   public getAPIs() {
     return this.apisInFile().map(
       (apiConstruct) =>
-        new this.APIImplementation(apiConstruct, this.functionsFileContents)
+        new this.APIImplementation(
+          apiConstruct,
+          this.functionsFileContents,
+          this.constructsFileContents,
+          this.pathToSSTProject,
+          this.fileImplementation
+        )
     )
   }
 }
