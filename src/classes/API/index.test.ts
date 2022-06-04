@@ -1,4 +1,4 @@
-import API from './'
+import API from '.'
 import File from '../File'
 import ConstructsFile from '../ConstructsFile'
 import FunctionsFile from '../FunctionsFile'
