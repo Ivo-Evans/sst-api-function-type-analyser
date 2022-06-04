@@ -48,6 +48,14 @@ export default class API {
     )
   }
 
+  private separateExportFromFilepath(exportFilePath: string) {
+    const dotFollowedByJSBinding = /\.(?=[a-zA-Z$_][a-zA-Z$_0-9]*$)/
+    const [filepath, exportedToken] = exportFilePath.split(
+      dotFollowedByJSBinding
+    )
+    return { filepath, exportedToken }
+  }
+
   private getApiMapping(
     apiConstruct: SSTAPIConstruct,
     functionFileByAddress: Record<string, string>
@@ -62,11 +70,8 @@ export default class API {
           // integrity is only checked within the constructs file, not between construsts.json and function.json - a problem
         }
 
-        //it would probably be cleaner to do this beforehand and change the shape of the earlier hashmaps
-        const dotFollowedByJSBinding = /\.(?=[a-zA-Z$_][a-zA-Z$_0-9]*$)/
-        const [filepath, exportedToken] = exportFilePath.split(
-          dotFollowedByJSBinding
-        )
+        const { filepath, exportedToken } =
+          this.separateExportFromFilepath(exportFilePath)
 
         const fileExportSpec = {
           ...(routesCollectedByFilepath[filepath] || {}),
