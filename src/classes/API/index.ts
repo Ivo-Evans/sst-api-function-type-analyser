@@ -1,51 +1,37 @@
 import {
   SSTAPIConstruct,
-  SSTFunctionsFileContents,
-  SSTConstructsFileContents,
   ApiExportSpec,
   Route,
   LambdaExportSpec,
   Method,
   FileExportSpec,
 } from '../../types'
-import path from 'path'
 import ImportBlock from '../ImportBlock'
 import Interface from '../Interface'
 import File from '../File'
+import ConstructsFile from '../ConstructsFile'
+import FunctionsFile from '../FunctionsFile'
 
 export default class API {
   private readonly apiMapping: ApiExportSpec
   private routeInterfaces: Record<string, Interface> = {}
 
-  private mapFunctionLocalIdToFilepath(
-    functionsFileContents: SSTFunctionsFileContents
-  ): Record<string, string> {
-    return functionsFileContents.reduce((collectedFunctions, functionEntry) => {
-      return {
-        ...collectedFunctions,
-        [functionEntry.id]: path.join(
-          // how do I actually want to save this filepath (absolute/relative/relative to what)? I'm not sure.
-          this.pathToSSTProject,
-          functionEntry.srcPath,
-          functionEntry.handler
-        ),
-      }
-    }, {})
-  }
-
   private mapFunctionAddressToFilepath(
-    constructsFileContents: SSTConstructsFileContents,
-    functionFileByLocalId: Record<string, string>
+    constructsFile: ConstructsFile,
+    functionsFile: FunctionsFile
   ) {
-    return constructsFileContents.reduce((collectedConstructs, construct) => {
-      if (construct.type !== 'Function') {
-        return collectedConstructs
-      }
+    return constructsFile.functions.reduce(
+      (collectedFunctionConstructs, functionConstruct) => {
+        const functionFilepath =
+          functionsFile.filepathById[functionConstruct.data.localId]
 
-      const functionFilepath = functionFileByLocalId[construct.data.localId]
-
-      return { ...collectedConstructs, [construct.addr]: functionFilepath }
-    }, {})
+        return {
+          ...collectedFunctionConstructs,
+          [functionConstruct.addr]: functionFilepath,
+        }
+      },
+      {}
+    )
   }
 
   private splitRouteAndMethod(sstPathString: Route): LambdaExportSpec {
@@ -98,20 +84,14 @@ export default class API {
 
   constructor(
     apiConstruct: SSTAPIConstruct,
-    functionsFileContents: SSTFunctionsFileContents,
-    constructsFileContents: SSTConstructsFileContents,
-    private readonly pathToSSTProject: string,
+    functionsFile: FunctionsFile,
+    constructsFile: ConstructsFile,
     private readonly file: File
   ) {
-    this.pathToSSTProject = pathToSSTProject
-    const functionFileByLocalId = this.mapFunctionLocalIdToFilepath(
-      functionsFileContents
-    )
     const functionFileByAddress = this.mapFunctionAddressToFilepath(
-      constructsFileContents,
-      functionFileByLocalId
+      constructsFile,
+      functionsFile
     )
-
     this.apiMapping = this.getApiMapping(apiConstruct, functionFileByAddress)
   }
 

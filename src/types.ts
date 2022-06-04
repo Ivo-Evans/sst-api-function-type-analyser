@@ -36,8 +36,6 @@ export interface SSTLocalLambdaRecord {
   root: string
 }
 
-export type SSTFunctionsFileContents = SSTLocalLambdaRecord[]
-
 export type Route = `${Method} /${string}`
 
 export interface SSTRoute {
@@ -69,9 +67,3 @@ export interface SSTFunctionConstruct {
     arn: string
   }
 }
-
-export type SSTConstruct = SSTAPIConstruct | SSTFunctionConstruct
-// | { type: unknown }
-// maybe edit the class to only export these?
-
-export type SSTConstructsFileContents = SSTConstruct[]

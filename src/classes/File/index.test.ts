@@ -8,8 +8,14 @@ describe('File', () => {
     expect(file.name).toBe('Jonathan')
   })
 
-  it('Can initialise with an existing file', () => {
+  it('Can initialise with an existing file, but does not read from disk until asked', () => {
     const file = new File(path.join(__dirname, 'testData', 'testFile'))
+    expect(file.content).toBe('')
+  })
+
+  it('Can read an existing file from disk', () => {
+    const file = new File(path.join(__dirname, 'testData', 'testFile'))
+    file.readFromDisk()
     expect(file.content).toBe('gobbledygook')
   })
 

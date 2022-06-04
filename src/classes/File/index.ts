@@ -1,30 +1,16 @@
 import fs from 'fs'
 
 export default class File {
-  public content: string
+  public content = ''
 
-  constructor(public readonly name: string) {
-    this.content = this.readFromDiskIfExists(name)
-  }
-
-  protected readFromDiskIfExists(name: string) {
-    try {
-      return fs.readFileSync(name, 'utf-8')
-    } catch (error: unknown) {
-      const isError = error instanceof Error
-      const isFileMissing =
-        (error as Error).message ===
-        `ENOENT: no such file or directory, open '${name}'`
-
-      if (!(isError || isFileMissing)) {
-        throw error
-      }
-
-      return ''
-    }
-  }
+  constructor(public readonly name: string) {}
 
   public writeToDisk() {
     return fs.writeFileSync(this.name, this.content)
+  }
+
+  public readFromDisk() {
+    this.content = fs.readFileSync(this.name, 'utf-8')
+    return this.content
   }
 }
