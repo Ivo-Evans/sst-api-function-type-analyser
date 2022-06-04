@@ -1,0 +1,3 @@
+{"id":"test-my-sst-app-MyStack-api-Lambda_POST_-users","handler":"functions/users/post.default","runtime":"nodejs16.x","srcPath":"backend","bundle":{"format":"esm"},"root":"/home/ivo-evans/fake-sst/my-sst-app"}
+{"id":"test-my-sst-app-MyStack-api-Lambda_GET_-users-{id}","handler":"functions/users/get.default","runtime":"nodejs16.x","srcPath":"backend","bundle":{"format":"esm"},"root":"/home/ivo-evans/fake-sst/my-sst-app"}
+{"id":"test-my-sst-app-MyStack-api-Lambda_PUT_-users-{id}","handler":"functions/users/put.default","runtime":"nodejs16.x","srcPath":"backend","bundle":{"format":"esm"},"root":"/home/ivo-evans/fake-sst/my-sst-app"}

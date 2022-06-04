@@ -127,7 +127,7 @@ export default class API {
     })
 
     Object.entries(this.routeInterfaces).map(([routeKey, routeInterface]) =>
-      routesInterface.insert(routeKey, routeInterface)
+      routesInterface.insertIndexSignature(routeKey, routeInterface)
     )
   }
 

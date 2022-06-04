@@ -24,10 +24,6 @@ export interface ApiExportSpec {
   [index: string]: FileExportSpec
 }
 
-export interface AppExportSpec {
-  [index: string]: ApiExportSpec
-}
-
 export interface SSTLocalLambdaRecord {
   id: string
   handler: string
@@ -66,4 +62,9 @@ export interface SSTFunctionConstruct {
     localId: string
     arn: string
   }
+}
+
+export interface Config {
+  srcDir: string
+  outDir: string
 }

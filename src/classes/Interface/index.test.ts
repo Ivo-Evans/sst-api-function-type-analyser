@@ -12,7 +12,7 @@ describe('Interface', () => {
   })
   it('can insert a template string index signature', () => {
     const interfaceInstance = new Interface()
-    interfaceInstance.insertIndexSignature('foo/${string}/bar', 'bar')
+    interfaceInstance.insertIndexSignature('`foo/${string}/bar`', 'bar')
     expect(interfaceInstance.toString()).toBe(
       [
         '{',

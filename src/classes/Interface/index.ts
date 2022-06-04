@@ -11,7 +11,7 @@ export default class Interface {
   }
 
   public insertIndexSignature(key: string, value: InterfaceEntry) {
-    this.insert(`[index: \`${key}\`]`, value)
+    this.insert(`[index: ${key}]`, value)
   }
 
   private indent(times: number) {
