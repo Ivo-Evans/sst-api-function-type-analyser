@@ -42,18 +42,18 @@ export default class API {
     return { method, route }
   }
 
-  private throwMissingFunction(lambdaExportSpec: LambdaExportSpec) {
-    throw new Error(
-      `Function for route ${lambdaExportSpec.method} ${lambdaExportSpec.route} cannot be found.`
-    )
-  }
-
-  private separateExportFromFilepath(exportFilePath: string) {
+  private splitExportAndFilepath(exportFilePath: string) {
     const dotFollowedByJSBinding = /\.(?=[a-zA-Z$_][a-zA-Z$_0-9]*$)/
     const [filepath, exportedToken] = exportFilePath.split(
       dotFollowedByJSBinding
     )
     return { filepath, exportedToken }
+  }
+
+  private throwMissingFunction(lambdaExportSpec: LambdaExportSpec) {
+    throw new Error(
+      `Function for route ${lambdaExportSpec.method} ${lambdaExportSpec.route} cannot be found.`
+    )
   }
 
   private getApiMapping(
@@ -62,16 +62,15 @@ export default class API {
   ): ApiExportSpec {
     return apiConstruct.data.routes.reduce<ApiExportSpec>(
       (routesCollectedByFilepath, route) => {
-        const { node } = route.fn
-        const exportFilePath = functionFileByAddress[node]
+        const exportFilePath = functionFileByAddress[route.fn.node]
         const lambdaExportSpec = this.splitRouteAndMethod(route.route)
         if (!exportFilePath) {
           this.throwMissingFunction(lambdaExportSpec)
-          // integrity is only checked within the constructs file, not between construsts.json and function.json - a problem
+          // integrity is only checked within the constructs file, not between constructs.json and function.json - a problem
         }
 
         const { filepath, exportedToken } =
-          this.separateExportFromFilepath(exportFilePath)
+          this.splitExportAndFilepath(exportFilePath)
 
         const fileExportSpec = {
           ...(routesCollectedByFilepath[filepath] || {}),
@@ -91,7 +90,7 @@ export default class API {
     private readonly apiConstruct: SSTAPIConstruct,
     functionsFile: FunctionsFile,
     constructsFile: ConstructsFile,
-    private readonly file: File
+    private readonly apiDeclarationFile: File
   ) {
     const functionFileByAddress = this.mapFunctionAddressToFilepath(
       constructsFile,
@@ -152,7 +151,7 @@ export default class API {
 
   public writeInterface() {
     const interfaceString = this.createInterfaceString()
-    this.file.content = interfaceString
-    this.file.writeToDisk()
+    this.apiDeclarationFile.content = interfaceString
+    this.apiDeclarationFile.writeToDisk()
   }
 }
