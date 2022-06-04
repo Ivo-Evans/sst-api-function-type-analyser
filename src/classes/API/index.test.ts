@@ -134,7 +134,7 @@ describe('API', () => {
         'import { default as default_export_2 } from "random/filepath/backend/functions/users/get";\n' +
         'import { default as default_export_3 } from "random/filepath/backend/functions/users/put";\n' +
         '\n' +
-        '{\n' +
+        'export interface api {\n' +
         '  `/users`: {\n' +
         '    POST: ReturnType<typeof default_export>;\n' +
         '  }\n' +

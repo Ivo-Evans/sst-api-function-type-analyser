@@ -4,6 +4,8 @@ export default class Interface {
   private readonly INDENTATION_STYLE = '  '
   private keyValuePairs: Record<string, InterfaceEntry> = {}
 
+  constructor(private readonly name?: string) {}
+
   public insert(key: string, value: InterfaceEntry) {
     this.keyValuePairs[key] = value
   }
@@ -16,11 +18,14 @@ export default class Interface {
     return new Array(times).fill(this.INDENTATION_STYLE).join('')
   }
 
-  private jsObjectToTsInterface<T>(object: T, nestingLevel: number): string {
+  private jsObjectToTsInterface<T extends object>(
+    obj: T,
+    nestingLevel: number
+  ): string {
     const keyNestingLevel = nestingLevel + 1
     return (
       '{\n' +
-      Object.entries(object)
+      Object.entries(obj)
         .map(([key, value]) => {
           return `${this.indent(keyNestingLevel)}${key}: ${
             value instanceof Interface
@@ -39,6 +44,9 @@ export default class Interface {
   }
 
   public toStatementString() {
-    return `interface ${this.toString()}`
+    if (!this.name) {
+      throw new Error('Cannot create an interface statement without naming it')
+    }
+    return `interface ${this.name} ${this.toString()}`
   }
 }

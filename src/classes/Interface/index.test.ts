@@ -39,10 +39,10 @@ describe('Interface', () => {
   })
 
   it('can create an interface statement', () => {
-    const interfaceInstance = new Interface()
+    const interfaceInstance = new Interface('FooBar')
     interfaceInstance.insert('foo', 'bar')
     expect(interfaceInstance.toStatementString()).toBe(
-      ['interface {', `${INDENTATION_LEVEL}foo: bar;`, '}'].join('\n')
+      ['interface FooBar {', `${INDENTATION_LEVEL}foo: bar;`, '}'].join('\n')
     )
   })
 })

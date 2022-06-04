@@ -88,7 +88,7 @@ export default class API {
   }
 
   constructor(
-    apiConstruct: SSTAPIConstruct,
+    private readonly apiConstruct: SSTAPIConstruct,
     functionsFile: FunctionsFile,
     constructsFile: ConstructsFile,
     private readonly file: File
@@ -133,7 +133,7 @@ export default class API {
 
   private createInterfaceString() {
     const importBlock = new ImportBlock()
-    const routesInterface = new Interface()
+    const routesInterface = new Interface(this.apiConstruct.id)
 
     Object.entries(this.apiMapping).forEach(([filepath, fileExportSpec]) => {
       this.registerLambdaFile(
@@ -144,7 +144,10 @@ export default class API {
       )
     })
 
-    return [importBlock.toString(), routesInterface.toString()].join('\n\n')
+    return [
+      importBlock.toString(),
+      `export ${routesInterface.toStatementString()}`,
+    ].join('\n\n')
   }
 
   public writeInterface() {
