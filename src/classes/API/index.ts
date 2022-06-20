@@ -5,16 +5,19 @@ import {
   LambdaExportSpec,
   Method,
   FileExportSpec,
+  Config,
 } from '../../types'
 import ImportBlock from '../ImportBlock'
 import Interface from '../Interface'
 import File from '../File'
 import ConstructsFile from '../ConstructsFile'
 import FunctionsFile from '../FunctionsFile'
+import path from 'path'
 
 export default class API {
   private readonly apiMapping: ApiExportSpec
   private routeInterfaces: Record<string, Interface> = {}
+  private readonly name: string
 
   private mapFunctionAddressToFilepath(
     constructsFile: ConstructsFile,
@@ -87,11 +90,13 @@ export default class API {
   }
 
   constructor(
-    private readonly apiConstruct: SSTAPIConstruct,
+    apiConstruct: SSTAPIConstruct,
     functionsFile: FunctionsFile,
     constructsFile: ConstructsFile,
-    private readonly apiDeclarationFile: File
+    private readonly config: Config,
+    private readonly FileImplementation: typeof File
   ) {
+    this.name = apiConstruct.id[0].toUpperCase() + apiConstruct.id.slice(1)
     const functionFileByAddress = this.mapFunctionAddressToFilepath(
       constructsFile,
       functionsFile
@@ -132,7 +137,7 @@ export default class API {
 
   private createInterfaceString() {
     const importBlock = new ImportBlock()
-    const routesInterface = new Interface(this.apiConstruct.id)
+    const routesInterface = new Interface(this.name)
 
     Object.entries(this.apiMapping).forEach(([filepath, fileExportSpec]) => {
       this.registerLambdaFile(
@@ -150,8 +155,9 @@ export default class API {
   }
 
   public writeInterface() {
-    const interfaceString = this.createInterfaceString()
-    this.apiDeclarationFile.content = interfaceString
-    this.apiDeclarationFile.writeToDisk()
+    const outFilePath = path.join(this.config.outDir, `${this.name}.d.ts`)
+    const apiDeclarationFile = new this.FileImplementation(outFilePath)
+    apiDeclarationFile.content = this.createInterfaceString()
+    apiDeclarationFile.writeToDisk()
   }
 }

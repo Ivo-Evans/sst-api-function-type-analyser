@@ -2,6 +2,7 @@ import API from '.'
 import File from '../File'
 import ConstructsFile from '../ConstructsFile'
 import FunctionsFile from '../FunctionsFile'
+import { Config } from '../../types'
 
 jest.mock(
   '../ConstructsFile',
@@ -119,22 +120,26 @@ describe('API', () => {
     const constructsFile = new ConstructsFile('irrelevant')
     const functionsFile = new FunctionsFile('irrelevant')
 
-    const file = new File('ApiRoutes.d.ts')
+    const config: Config = {
+      srcDir: 'foo',
+      outDir: 'bar',
+    }
 
     const api = new API(
       constructsFile.apis[0],
       functionsFile,
       constructsFile,
-      file
+      config,
+      File
     )
     api.writeInterface()
     expect(disk).toMatchObject({
-      'ApiRoutes.d.ts':
+      'bar/Api.d.ts':
         'import { default as default_export } from "random/filepath/backend/functions/users/post";\n' +
         'import { default as default_export_2 } from "random/filepath/backend/functions/users/get";\n' +
         'import { default as default_export_3 } from "random/filepath/backend/functions/users/put";\n' +
         '\n' +
-        'export interface api {\n' +
+        'export interface Api {\n' +
         '  [index: `/users`]: {\n' +
         '    POST: ReturnType<typeof default_export>;\n' +
         '  }\n' +
