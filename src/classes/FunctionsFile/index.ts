@@ -7,7 +7,10 @@ export default class FunctionsFile extends File {
 
   private initialiseJSONLFile(): SSTLocalLambdaRecord[] {
     const data = this.readFromDisk()
-    return data.split('\n').map((item) => JSON.parse(item))
+    return data
+      .trim()
+      .split('\n')
+      .map((item) => JSON.parse(item))
   }
 
   constructor(name: string) {
